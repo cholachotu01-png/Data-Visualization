@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2784/2784403.png" />
+    <title>EV Insights | Electric Vehicle Analytics</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- D3.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-brand">
+            <div class="brand-info">
+                <h1>EV Insights</h1>
+                <span class="brand-tagline">US Electric Vehicle Population Analysis</span>
+            </div>
+        </div>
+        
+        <nav class="header-nav">
+            <a href="#overview" class="nav-link active" data-section="overview">Overview</a>
+            <a href="#trends" class="nav-link" data-section="trends">Trends</a>
+            <a href="#geographic" class="nav-link" data-section="geographic">Geographic</a>
+            <a href="#comparison" class="nav-link" data-section="comparison">Comparison</a>
+        </nav>
+        
+        <div class="header-actions">
+            <button class="btn-export" id="export-btn" title="Export Data">
+                <span>Export</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="app-layout">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Filters</h3>
+            
+                <div class="filter-item">
+                    <label>Manufacturer</label>
+                    <div class="search-wrapper">
+                        <input type="text" class="search-input" id="manufacturer-search" placeholder="Search or select..." autocomplete="off" />
+                        <button class="search-dropdown-btn" id="search-toggle">▼</button>
+                        <div class="search-dropdown" id="manufacturer-dropdown">
+                            <div class="search-dropdown-list" id="manufacturer-list"></div>
+                        </div>
+                    </div>
+            </div>
+            
+                <div class="filter-item">
+                <label>Year Range</label>
+                    <div class="range-values">
+                        <span id="year-min-label">2010</span>
+                        <span>to</span>
+                        <span id="year-max-label">2024</span>
+                    </div>
+                    <div class="range-container">
+                        <div class="range-row">
+                            <label>From:</label>
+                            <input type="range" id="year-min" min="2010" max="2024" value="2010" />
+                        </div>
+                        <div class="range-row">
+                            <label>To:</label>
+                            <input type="range" id="year-max" min="2010" max="2024" value="2024" />
+                        </div>
+                </div>
+            </div>
+            
+                <div class="filter-item">
+                <label>Vehicle Type</label>
+                    <div class="checkbox-list">
+                        <label class="checkbox-item">
+                        <input type="checkbox" value="BEV" checked />
+                            <span class="checkbox-mark"></span>
+                            <span>Battery Electric (BEV)</span>
+                    </label>
+                        <label class="checkbox-item">
+                        <input type="checkbox" value="PHEV" checked />
+                            <span class="checkbox-mark"></span>
+                            <span>Plug-in Hybrid (PHEV)</span>
+                    </label>
+                </div>
+            </div>
+            
+                <div class="filter-buttons">
+                    <button class="btn-primary btn-apply-filters">Apply</button>
+                    <button class="btn-secondary btn-reset-filters">Reset</button>
+                </div>
+            </div>
+            
+            <!-- Active Filter Indicator -->
+            <div class="sidebar-section" id="active-filter-section" style="display: none;">
+                <h3 class="sidebar-title">Active Selection</h3>
+                <div class="active-filter">
+                    <div class="active-filter-info">
+                        <span class="active-filter-label">Manufacturer:</span>
+                        <span id="active-filter-text" class="active-filter-value">All Data</span>
+                </div>
+                    <button class="btn-clear-filter" id="clear-filter-btn">✕ Clear</button>
+                </div>
+                <p class="active-filter-hint">All charts are filtered to show only this manufacturer's data</p>
+            </div>
+            
+            <!-- Key Insights -->
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Key Insights</h3>
+                <div class="insights-list" id="insights-list">
+                    <div class="insight-item">
+                        <span class="insight-text">Loading insights...</span>
+                </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span class="stat-number" id="total-vehicles">0</span>
+                    <span class="stat-label">Total Vehicles</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="total-manufacturers">0</span>
+                    <span class="stat-label">Manufacturers</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="avg-range">0</span>
+                    <span class="stat-label">Avg Range (mi)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="yoy-growth">0%</span>
+                    <span class="stat-label">YoY Growth</span>
+                </div>
+            </div>
+
+        <!-- Overview Section -->
+            <section id="overview" class="content-section active">
+                <div class="chart-grid">
+                    <div class="chart-card wide">
+                        <div class="chart-title">
+                            <h3>EV Distribution by Manufacturer</h3>
+                            <p>Click on a bar to filter all charts (Brushing & Linking)</p>
+                        </div>
+                        <div class="chart-toolbar">
+                            <div class="dropdown" id="bar-dropdown">
+                                <button class="dropdown-btn">Filter ▼</button>
+                                <div class="dropdown-content"></div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                        <svg id="bar-chart"></svg>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                        <div class="chart-title">
+                            <h3>Vehicle Type Distribution</h3>
+                            <p>BEV vs PHEV breakdown</p>
+                        </div>
+                        <div class="chart-container donut-wrap">
+                        <svg id="donut-chart"></svg>
+                        <div class="donut-center">
+                            <span class="donut-value" id="donut-total">0</span>
+                            <span class="donut-label">Total</span>
+                        </div>
+                    </div>
+                    <div class="chart-legend" id="donut-legend"></div>
+                </div>
+
+                <div class="chart-card">
+                        <div class="chart-title">
+                            <h3>Market Share Hierarchy</h3>
+                            <p>Manufacturer → Model breakdown</p>
+                        </div>
+                        <div class="chart-container">
+                        <svg id="treemap-chart"></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trends Section -->
+            <section id="trends" class="content-section">
+                <div class="chart-grid">
+                    <div class="chart-card wide">
+                        <div class="chart-title">
+                            <h3>Adoption Trends Over Time</h3>
+                            <p>EV registrations by year and manufacturer</p>
+                        </div>
+                        <div class="chart-toolbar">
+                            <div class="dropdown" id="line-dropdown">
+                                <button class="dropdown-btn">Select Brands ▼</button>
+                                <div class="dropdown-content"></div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                        <svg id="line-chart"></svg>
+                    </div>
+                    <div class="chart-legend" id="line-legend"></div>
+                </div>
+
+                <div class="chart-card">
+                        <div class="chart-title">
+                            <h3>EV Type Trends</h3>
+                            <p>BEV vs PHEV adoption over years</p>
+                        </div>
+                        <div class="chart-container">
+                        <svg id="stacked-chart"></svg>
+                    </div>
+                    <div class="chart-legend" id="stacked-legend">
+                        <div class="legend-item">
+                                <span class="legend-dot" style="background: #2563eb;"></span>
+                                <span>BEV</span>
+                        </div>
+                        <div class="legend-item">
+                                <span class="legend-dot" style="background: #f59e0b;"></span>
+                                <span>PHEV</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                        <div class="chart-title">
+                            <h3>Range Evolution</h3>
+                            <p>Average electric range improvement</p>
+                        </div>
+                        <div class="chart-container">
+                        <svg id="scatter-chart"></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Geographic Section -->
+            <section id="geographic" class="content-section">
+                <div class="chart-grid">
+                    <div class="chart-card full">
+                        <div class="chart-title">
+                            <h3>Geographic Distribution</h3>
+                            <p>EV registrations across the US — Use mouse wheel to zoom, drag to pan</p>
+                        </div>
+                        <div class="map-controls">
+                            <button class="map-btn" id="zoom-in">+</button>
+                            <button class="map-btn" id="zoom-out">−</button>
+                            <button class="map-btn" id="zoom-reset">Reset</button>
+                    </div>
+                        <div class="chart-container map-wrap">
+                        <svg id="map-chart"></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Section -->
+            <section id="comparison" class="content-section">
+                <div class="chart-grid">
+                    <div class="chart-card wide">
+                        <div class="chart-title">
+                            <h3>Annual Comparison by Vehicle Type</h3>
+                            <p>Side-by-side BEV vs PHEV comparison</p>
+                        </div>
+                        <div class="chart-container">
+                        <svg id="grouped-chart"></svg>
+                    </div>
+                    <div class="chart-legend" id="grouped-legend">
+                        <div class="legend-item">
+                                <span class="legend-dot" style="background: #2563eb;"></span>
+                                <span>BEV</span>
+                        </div>
+                        <div class="legend-item">
+                                <span class="legend-dot" style="background: #f59e0b;"></span>
+                                <span>PHEV</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card full">
+                        <div class="chart-title">
+                            <h3>Brand Performance Matrix</h3>
+                            <p>Average range vs model year (bubble size = vehicle count)</p>
+                </div>
+                        <div class="chart-container">
+                        <svg id="bubble-chart"></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+            <footer class="app-footer">
+                <p>EV Insights Dashboard — Data Visualization Course Project — US Electric Vehicle Population Dataset</p>
+        </footer>
+    </main>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="scripts/main.js"></script>
+</body>
+</html>

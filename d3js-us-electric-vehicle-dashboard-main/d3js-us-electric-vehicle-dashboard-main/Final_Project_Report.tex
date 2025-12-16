@@ -1,0 +1,533 @@
+\documentclass[12pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{setspace}
+\usepackage{parskip}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+\onehalfspacing
+
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\LARGE\bfseries EV Insights Dashboard}\\[0.5cm]
+    {\large Interactive Data Visualization of US Electric Vehicle Population}\\[2.5cm]
+    
+    {\large Data Visualization}\\
+    {\large Final Project Report}\\[2cm]
+    
+    \textbf{Submitted By:}\\[0.3cm]
+    {\large [YOUR NAME]}\\
+    {\large [YOUR FRIEND'S NAME]}\\[2cm]
+    
+    \textbf{GitHub Repository:}\\
+    \url{https://github.com/[your-username]/[repo-name]}\\[2cm]
+    
+    \vfill
+    
+    {\large \today}
+    
+\end{titlepage}
+
+% Table of Contents
+\tableofcontents
+\newpage
+
+% 1. Introduction
+\section{Introduction}
+
+\subsection{Project Overview}
+
+Electric vehicles are becoming more and more popular as people look for sustainable transportation options. With so much data available about EV registrations, it's important to have good tools to visualize and understand this information. That's what our project is about.
+
+We built an interactive web-based dashboard that visualizes electric vehicle registration data from Washington State. The dashboard allows users to explore the data through different types of charts and discover patterns in EV adoption.
+
+\subsection{Objectives}
+
+The main goals of this project were:
+\begin{itemize}
+    \item Create a dashboard with multiple visualization types using D3.js
+    \item Implement interactive features like filtering and cross-filtering
+    \item Apply data visualization concepts learned in the course
+    \item Make the data easy to explore and understand
+    \item Find meaningful insights about EV adoption trends
+\end{itemize}
+
+\subsection{What We Built}
+
+Our dashboard includes:
+\begin{itemize}
+    \item 9 different chart types (bar, donut, treemap, line, stacked bar, scatter, map, grouped bar, bubble)
+    \item Cross-filtering feature where clicking one chart filters all other charts
+    \item Real-time filtering with search, year sliders, and checkboxes
+    \item Interactive map with zoom and pan
+    \item Dynamic insights panel that updates based on selections
+    \item Export functionality to download filtered data
+\end{itemize}
+
+\newpage
+
+% 2. Dataset
+\section{Dataset}
+
+\subsection{Data Source}
+
+We used the \textbf{Electric Vehicle Population Data} from the Washington State Department of Licensing. This is a real-world dataset that's publicly available on the Washington State Open Data Portal.
+
+\textbf{Source:} \url{https://data.wa.gov/Transportation/Electric-Vehicle-Population-Data/f6w7-q2d2}
+
+\subsection{Dataset Description}
+
+The dataset contains records of electric vehicles registered in Washington State. Each record has information about the vehicle and where it's registered.
+
+\begin{table}[H]
+\centering
+\caption{Data Attributes}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Attribute} & \textbf{Type} & \textbf{Description} \\
+\midrule
+Make & String & Vehicle manufacturer (Tesla, Nissan, etc.) \\
+Model & String & Specific model name \\
+Model Year & Number & Year the vehicle was manufactured \\
+Electric Vehicle Type & String & BEV (Battery Electric) or PHEV (Plug-in Hybrid) \\
+Electric Range & Number & How far it can drive on electric (miles) \\
+City & String & City of registration \\
+State & String & State (Washington) \\
+Latitude & Number & Geographic coordinate \\
+Longitude & Number & Geographic coordinate \\
+Base MSRP & Number & Manufacturer's suggested price \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data Statistics}
+
+\begin{itemize}
+    \item \textbf{Total Records:} Approximately 10,000 vehicles
+    \item \textbf{Manufacturers:} 27 different brands
+    \item \textbf{Models:} Over 200 different models
+    \item \textbf{Year Range:} 2010 to 2024
+    \item \textbf{Average Electric Range:} 131 miles
+    \item \textbf{Geographic Coverage:} Cities across Washington State
+\end{itemize}
+
+\newpage
+
+% 3. Technology
+\section{Technology and Tools}
+
+\subsection{D3.js}
+
+D3.js (Data-Driven Documents) is a JavaScript library for creating data visualizations in web browsers. It's considered the industry standard for web-based data visualization.
+
+We chose D3.js because:
+\begin{itemize}
+    \item It gives complete control over how visualizations look and behave
+    \item It has powerful data binding capabilities
+    \item It includes built-in support for maps and geographic projections
+    \item It can create any type of chart we needed
+    \item It supports smooth animations and transitions
+\end{itemize}
+
+\subsection{D3 Features We Used}
+
+\begin{table}[H]
+\centering
+\caption{D3.js Features Used in the Project}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Feature} & \textbf{What We Used It For} \\
+\midrule
+Scales (linear, band, ordinal) & Mapping data values to visual positions and sizes \\
+Shape generators (arc, line, area) & Drawing donut slices, line charts, and areas \\
+Treemap layout & Creating the hierarchical market share view \\
+Geographic projection & Rendering the US map \\
+Zoom behavior & Adding zoom and pan to the map \\
+Transitions & Smooth animations when data changes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Other Technologies}
+
+\begin{itemize}
+    \item \textbf{HTML/CSS:} Page structure and styling
+    \item \textbf{JavaScript (ES6):} Application logic and interactivity
+    \item \textbf{TopoJSON:} Geographic data for map boundaries
+    \item \textbf{Python HTTP Server:} Local development server
+\end{itemize}
+
+\newpage
+
+% 4. Visualizations
+\section{Visualizations}
+
+We implemented 9 different visualization types. Each one shows a different aspect of the EV data.
+
+\subsection{Bar Chart - Manufacturer Distribution}
+
+The bar chart displays the top 15 manufacturers by number of registered vehicles. This gives an immediate view of which brands dominate the EV market.
+
+\textbf{Key Feature:} Clicking on any bar triggers cross-filtering, which updates all other charts to show only that manufacturer's data.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{barchart.png}
+    \caption{Bar Chart showing EV distribution by manufacturer}
+\end{figure}
+
+\textbf{Insight:} Tesla leads with 44\% market share, significantly ahead of other manufacturers.
+
+\newpage
+
+\subsection{Donut Chart - Vehicle Type Distribution}
+
+The donut chart shows the split between Battery Electric Vehicles (BEV) and Plug-in Hybrid Electric Vehicles (PHEV). The center displays the total count.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{donutchart.png}
+    \caption{Donut Chart showing BEV vs PHEV distribution}
+\end{figure}
+
+\textbf{Insight:} About 75\% of registered vehicles are fully electric (BEV), while 25\% are plug-in hybrids (PHEV).
+
+\subsection{Treemap - Model Market Share}
+
+The treemap provides a hierarchical view where rectangle sizes represent the number of vehicles. Larger rectangles indicate more popular models.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{treemap.png}
+    \caption{Treemap showing market share by model}
+\end{figure}
+
+\textbf{Insight:} Tesla Model 3 is the most popular single model with over 2,000 registrations (21.43\% of total).
+
+\newpage
+
+\subsection{Line Chart - Adoption Trends}
+
+The line chart tracks how EV registrations have changed over time for different manufacturers. Each colored line represents a different brand.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{linechart.png}
+    \caption{Line Chart showing adoption trends over time}
+\end{figure}
+
+\textbf{Insight:} Tesla's growth accelerated significantly starting around 2018, while other manufacturers show more gradual increases.
+
+\subsection{Stacked Bar Chart - EV Type Trends by Year}
+
+The stacked bar chart shows BEV and PHEV counts stacked on top of each other for each year. This reveals both the total growth and how the mix has changed.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{stackedbar.png}
+    \caption{Stacked Bar Chart showing BEV vs PHEV by year}
+\end{figure}
+
+\textbf{Insight:} BEV registrations have grown much faster than PHEV in recent years, showing a clear market preference for fully electric vehicles.
+
+\newpage
+
+\subsection{Scatter Plot - Range Evolution}
+
+The scatter plot displays how the average electric range has improved over time. Points are connected to show the trend clearly.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{scatterplot.png}
+    \caption{Scatter Plot showing electric range improvement over time}
+\end{figure}
+
+\textbf{Insight:} Average electric range has improved from about 70 miles in 2011 to over 200 miles in recent years - nearly a 3x improvement.
+
+\subsection{Geographic Map}
+
+The map shows where EVs are registered across Washington State. Circle sizes indicate the number of vehicles in each city.
+
+\textbf{Features:}
+\begin{itemize}
+    \item Zoom in/out with mouse wheel or buttons
+    \item Drag to pan around the map
+    \item Reset button to return to default view
+    \item Hover for city details
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{map.png}
+    \caption{Geographic Map showing EV distribution across Washington State}
+\end{figure}
+
+\textbf{Insight:} EV registrations are heavily concentrated in urban areas, especially the Seattle metropolitan region.
+
+\newpage
+
+\subsection{Grouped Bar Chart - BEV vs PHEV Comparison}
+
+The grouped bar chart places BEV and PHEV bars side by side for each year, making direct comparison easy.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{groupedbar.png}
+    \caption{Grouped Bar Chart comparing BEV and PHEV by year}
+\end{figure}
+
+\textbf{Insight:} In 2023, BEV registrations massively outpaced PHEV, showing the market's strong shift toward fully electric vehicles.
+
+\subsection{Bubble Chart - Brand Performance Matrix}
+
+The bubble chart encodes three dimensions of data in one visualization:
+\begin{itemize}
+    \item X-axis: Average model year (newer brands on the right)
+    \item Y-axis: Average electric range
+    \item Bubble size: Number of vehicles registered
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{bubblechart.png}
+    \caption{Bubble Chart showing brand performance matrix}
+\end{figure}
+
+\textbf{Insight:} Tesla has the largest bubble (most vehicles) positioned in the upper-right quadrant, indicating newer models with higher range.
+
+\newpage
+
+% 5. Interactive Features
+\section{Interactive Features}
+
+\subsection{Cross-Filtering (Brushing and Linking)}
+
+This is one of the key features of our dashboard. When a user clicks on a bar in the manufacturer chart, all other visualizations instantly update to show only that manufacturer's data.
+
+For example, clicking on ``TESLA'' will:
+\begin{itemize}
+    \item Update the donut chart to show only Tesla's BEV/PHEV split
+    \item Filter the treemap to show only Tesla models
+    \item Adjust the line chart to highlight Tesla's trend
+    \item Show only Tesla locations on the map
+    \item Recalculate all the insights for Tesla only
+\end{itemize}
+
+This technique is called ``brushing and linking'' and it allows users to explore any manufacturer's complete profile across all visualizations.
+
+\subsection{Real-Time Filtering}
+
+The sidebar provides several filter controls:
+
+\begin{itemize}
+    \item \textbf{Manufacturer Search:} A dropdown with autocomplete that lists all 27 manufacturers. Users can type to search or scroll to select.
+    \item \textbf{Year Range Sliders:} Two sliders to set the start and end year (2010-2024). Charts update as you drag.
+    \item \textbf{Vehicle Type Checkboxes:} Toggle to show or hide BEV and PHEV vehicles.
+\end{itemize}
+
+All filters update the visualizations in real-time without needing to click a button.
+
+\subsection{Interactive Tooltips}
+
+Every chart element has a tooltip that appears on hover. Tooltips show:
+\begin{itemize}
+    \item The data value
+    \item Percentage of total (where applicable)
+    \item Additional context like model names or years
+\end{itemize}
+
+\subsection{Dynamic Insights Panel}
+
+The sidebar shows key statistics that automatically update based on current filters:
+\begin{itemize}
+    \item Top manufacturer
+    \item BEV vs PHEV percentage
+    \item Average and maximum electric range
+    \item Peak registration year
+    \item Top city
+    \item Year-over-year growth rate
+\end{itemize}
+
+\newpage
+
+% 6. Dashboard Overview
+\section{Dashboard Overview}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{dashboard.png}
+    \caption{Complete Dashboard Interface}
+\end{figure}
+
+\subsection{Layout Structure}
+
+The dashboard is organized into:
+
+\begin{itemize}
+    \item \textbf{Header:} Contains the title and navigation tabs (Overview, Trends, Geographic, Comparison)
+    \item \textbf{Sidebar:} Filter controls and key insights panel
+    \item \textbf{Summary Cards:} Quick statistics showing total vehicles, manufacturers, average range, and growth
+    \item \textbf{Main Area:} The visualization charts organized by section
+    \item \textbf{Footer:} Project information
+\end{itemize}
+
+\subsection{Navigation}
+
+Users can switch between four sections:
+\begin{itemize}
+    \item \textbf{Overview:} Bar chart, donut chart, and treemap
+    \item \textbf{Trends:} Line chart, stacked bar, and scatter plot
+    \item \textbf{Geographic:} Interactive map
+    \item \textbf{Comparison:} Grouped bar and bubble chart
+\end{itemize}
+
+\newpage
+
+% 7. Results
+\section{Results and Findings}
+
+Through our dashboard, we discovered several interesting insights about the EV market in Washington State.
+
+\subsection{Market Leadership}
+
+\begin{itemize}
+    \item \textbf{Tesla dominates} with 44\% market share (approximately 4,400 vehicles out of 10,000)
+    \item \textbf{Tesla Model 3} is the single most popular model with 2,004 registrations
+    \item The \textbf{top 5 manufacturers} (Tesla, Nissan, Chevrolet, BMW, Kia) account for over 80\% of all registrations
+    \item There are 27 different manufacturers represented in the data
+\end{itemize}
+
+\subsection{Vehicle Type Analysis}
+
+\begin{itemize}
+    \item \textbf{75\% are fully electric} (Battery Electric Vehicles - BEV)
+    \item \textbf{25\% are plug-in hybrids} (Plug-in Hybrid Electric Vehicles - PHEV)
+    \item BEV adoption is growing much faster than PHEV
+    \item The market is clearly shifting toward fully electric vehicles
+    \item In recent years, BEV registrations have significantly outpaced PHEV
+\end{itemize}
+
+\subsection{Technology Improvement}
+
+\begin{itemize}
+    \item Average electric range has improved from \textbf{70 miles (2011) to over 200 miles (2023)}
+    \item This represents approximately a \textbf{3x improvement} in battery technology
+    \item Newer vehicles consistently offer better range than older models
+    \item Tesla vehicles tend to have the highest average range
+\end{itemize}
+
+\subsection{Geographic Distribution}
+
+\begin{itemize}
+    \item EV registrations are \textbf{concentrated in urban areas}
+    \item \textbf{Seattle metropolitan area} has the highest concentration
+    \item Suburban and rural areas show significantly lower adoption rates
+    \item Coastal cities tend to have more EVs than inland areas
+\end{itemize}
+
+\subsection{Growth Trends}
+
+\begin{itemize}
+    \item Year-over-year growth rate is approximately \textbf{76\%}
+    \item \textbf{2023 shows the highest} number of registrations
+    \item Growth has accelerated significantly since 2018
+    \item The trend suggests continued strong adoption in coming years
+\end{itemize}
+
+\newpage
+
+% 8. Challenges
+\section{Challenges and Solutions}
+
+During the development of this project, we faced several challenges:
+
+\begin{table}[H]
+\centering
+\caption{Challenges and How We Solved Them}
+\begin{tabular}{@{}p{5.5cm}p{7.5cm}@{}}
+\toprule
+\textbf{Challenge} & \textbf{Solution} \\
+\midrule
+Large dataset affecting performance & Aggregated data before rendering; grouped map points by city instead of showing individual vehicles \\
+\addlinespace
+Synchronizing filters across all charts & Used a global state variable to track selections and re-render all charts when it changes \\
+\addlinespace
+Filters updating too frequently while dragging sliders & Added debouncing to wait 300ms before updating \\
+\addlinespace
+Map too cluttered with individual points & Aggregated vehicles by city and used circle size to show count \\
+\addlinespace
+Filter selection lost when switching tabs & Stored filter state globally and reapplied when navigating \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+% 9. Conclusion
+\section{Conclusion}
+
+We successfully built an interactive dashboard for visualizing electric vehicle registration data using D3.js. The project demonstrates various data visualization techniques and interactive features.
+
+\subsection{What We Accomplished}
+
+\begin{itemize}
+    \item Created 9 different visualization types
+    \item Implemented cross-filtering (brushing and linking) between charts
+    \item Built real-time filtering with search, sliders, and checkboxes
+    \item Added an interactive map with zoom and pan
+    \item Generated dynamic insights based on current selections
+    \item Designed a clean, user-friendly interface
+\end{itemize}
+
+\subsection{What We Learned}
+
+Through this project, we gained hands-on experience with:
+\begin{itemize}
+    \item Using D3.js to create different types of visualizations
+    \item Implementing coordinated views and brushing/linking
+    \item Processing and aggregating data for visualization
+    \item Creating interactive maps with geographic projections
+    \item Managing state and updating visualizations dynamically
+    \item Building a complete dashboard application
+\end{itemize}
+
+\subsection{Future Improvements}
+
+If we had more time, we could add:
+\begin{itemize}
+    \item Data from other states for comparison
+    \item Predictive visualizations for future trends
+    \item More animation effects
+    \item Mobile-responsive design
+\end{itemize}
+
+\newpage
+
+% References
+\section*{References}
+
+\begin{enumerate}
+    \item Washington State Department of Licensing. ``Electric Vehicle Population Data.'' Washington State Open Data Portal. \url{https://data.wa.gov/Transportation/Electric-Vehicle-Population-Data/f6w7-q2d2}
+    
+    \item D3.js - Data-Driven Documents. \url{https://d3js.org/}
+    
+    \item TopoJSON - An extension of GeoJSON. \url{https://github.com/topojson/topojson}
+\end{enumerate}
+
+\end{document}
